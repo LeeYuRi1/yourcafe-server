@@ -1,0 +1,37 @@
+{
+  "name": "your-cafe-server",
+  "version": "0.0.1",
+  "scripts": {
+    "dev:local": "NODE_PATH=src POSTGRES_HOST=localhost nodemon --inspect src/local --exec babel-node --plugins transform-es2015-modules-commonjs,transform-object-rest-spread,transform-async-to-generator --presets flow"
+  },
+  "dependencies": {
+    "@koa/cors": "^3.0.0",
+    "axios": "^0.18.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "dotenv": "^7.0.0",
+    "koa": "^2.7.0",
+    "koa-body": "^4.1.0",
+    "koa-bodyparser": "^4.2.1",
+    "koa-router": "^7.4.0",
+    "lodash": "^4.17.11",
+    "mime-types": "^2.1.22",
+    "nodemon": "^1.18.10",
+    "sequelize": "^5.2.7",
+    "sequelize-cockroachdb": "^1.0.3"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.5",
+    "babel-plugin-shebang": "^1.0.0",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-es2015-node6": "^0.4.0",
+    "babel-preset-flow": "^6.23.0",
+    "shebang-loader": "^0.0.1",
+    "webpack": "^4.29.6"
+  },
+  "license": "MIT"
+}
