@@ -2,7 +2,9 @@
   "name": "your-cafe-server",
   "version": "0.0.1",
   "scripts": {
-    "dev:local": "NODE_PATH=src POSTGRES_HOST=localhost nodemon --inspect src/local --exec babel-node --plugins transform-es2015-modules-commonjs,transform-object-rest-spread,transform-async-to-generator --presets flow"
+    "dev:local": "NODE_PATH=src POSTGRES_HOST=localhost nodemon --inspect src/local --exec babel-node --plugins transform-es2015-modules-commonjs,transform-object-rest-spread,transform-async-to-generator --presets flow",
+    "migrate:dev": "NODE_PATH=src POSTGRES_HOST=localhost babel-node src/scripts/migrate --plugins transform-es2015-modules-commonjs,transform-object-rest-spread,transform-async-to-generator --presets flow",
+    "prettier:watch": "onchange '**/*.js' -- prettier-eslint --write {{changed}}"
   },
   "dependencies": {
     "@koa/cors": "^3.0.0",
@@ -16,12 +18,15 @@
     "lodash": "^4.17.11",
     "mime-types": "^2.1.22",
     "nodemon": "^1.18.10",
+    "prettier-eslint": "^8.8.2",
+    "qs": "^6.7.0",
     "sequelize": "^5.2.7",
     "sequelize-cockroachdb": "^1.0.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
+    "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.5",
     "babel-plugin-shebang": "^1.0.0",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
@@ -30,6 +35,12 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-es2015-node6": "^0.4.0",
     "babel-preset-flow": "^6.23.0",
+    "eslint": "^5.16.0",
+    "eslint-plugin-flowtype": "^3.4.2",
+    "eslint-plugin-import": "^2.16.0",
+    "flow-bin": "^0.96.0",
+    "onchange": "^5.2.0",
+    "prettier-eslint-cli": "^4.7.1",
     "shebang-loader": "^0.0.1",
     "webpack": "^4.29.6"
   },

@@ -1,0 +1,13 @@
+# 개발 환경에서만 사용
+version: '3.1'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: dp
+      POSTGRES_USER: dp
+      POSTGRES_PASSWORD: depromeet1234
