@@ -81,15 +81,17 @@ app.get('/cafes', (req, res) => {
 
 // 카페 상세 정보 가져오기
 app.get('/cafe/:id', (req, res) => {
-  var id = req.params.id;
-  var query = `SELECT * FROM cafes WHERE id = ${id}`;
+  let id = req.params.id;
+  let query = `SELECT * FROM cafes WHERE id = ?`;
 
-  pool.query(query, (err, rows, fields) => {
-    if(err) {
-      console.log(err);
-    } else {
+  pool.getConnection(function(err, connection) {
+    if (err) throw err;
 
-    }
+    connection.query(query, [id], function (err, rows) {
+      if (err) throw err;
+      console.log("rows : " + JSON.stringify(rows));
+
+    });
   });
 });
 
@@ -118,6 +120,7 @@ app.post('/cafe', (req, res) => {
     });
   });
 });
+
 
 // 카페 수정하기
 app.put('/cafes', (req, res) => {
