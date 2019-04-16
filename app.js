@@ -140,6 +140,7 @@ app.post('/cafe', (req, res) => {
   });
 });
 
+
 // 카페 수정하기
 app.put('/cafe/:id', (req, res) => {
   let id = req.params.id;
