@@ -46,7 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // 카페 목록 가져오기 : 위도, 경도, 확대정도, 필터 조건들을 url query에 전송할 것을 예상
 app.get('/cafes', (req, res) => {
   var latitude = req.params.latitude;
-  var longitude = req.params.longitude;
+  var longitude = req.params.longitude; 
   var query = `SELECT ${latitude}, ${longitude} FROM cafes`;   
 
   pool.query(query, (err, rows, fields) => {
@@ -78,14 +78,7 @@ app.get('/cafe/:id', (req, res) => {
 
 // 카페 생성하기
 app.post('/cafe', (req, res) => {
-  //var query = `INSERT INTO cafes  `;
-  pool.query(query, (err, rows, fields) => {
-    if(err) {
-      console.log(err);
-    } else {
 
-    }
-  });
 
 });
 
