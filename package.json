@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "body-parser": "^1.18.3",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
@@ -13,5 +14,9 @@
     "morgan": "~1.9.0",
     "mysql": "^2.16.0",
     "s3": "^4.4.0"
+  },
+  "devDependencies": {
+    "swagger-jsdoc": "^3.2.9",
+    "swagger-ui-express": "^4.0.2"
   }
 }
