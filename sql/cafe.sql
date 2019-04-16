@@ -1,19 +1,20 @@
 CREATE DATABASE your_cafe;
 USE your_cafe;
-Create Table cafes ( 
-	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,  
-    name VARCHAR(20) NOT NULL,   -- 카페 이름
-    latitude VARCHAR(30) NOT NULL,   -- 위도
-    longitude VARCHAR(30) NOT NULL,   -- 경도
-    create_date DATETIME,
-    update_date DATETIME,
-    images VARCHAR(50),   -- 카페 사진
-    smoking_fl TINYINT(1) DEFAULT 0,   -- 흡연실
-    parking_fl TINYINT(1) DEFAULT 0,   -- 주차장
-    open_24_fl TINYINT(1) DEFAULT 0,   -- 24시
-    reserve_fl TINYINT(1) DEFAULT 0,   -- 예약 가능
-    outside_food_fl TINYINT(1) DEFAULT 0,   -- 외부 음식
-    separate_toilet_fl TINYINT(1) DEFAULT 0,   -- 남녀 분리 화장실
-    over_6_people_fl TINYINT(1) DEFAULT 0,   -- 6인 이상 가능
-    power_outlet_fl TINYINT(1) DEFAULT 0    -- 콘센트
-)
+CREATE TABLE `cafes` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(20) NOT NULL,
+  `latitude` double NOT NULL,
+  `longitude` double NOT NULL,
+  `create_date` datetime DEFAULT NULL,
+  `update_date` datetime DEFAULT NULL,
+  `images` json DEFAULT NULL,
+  `smoking_fl` tinyint(1) DEFAULT '0',
+  `parking_fl` tinyint(1) DEFAULT '0',
+  `open_24_fl` tinyint(1) DEFAULT '0',
+  `reserve_fl` tinyint(1) DEFAULT '0',
+  `outside_food_fl` tinyint(1) DEFAULT '0',
+  `separate_toilet_fl` tinyint(1) DEFAULT '0',
+  `over_6_people_fl` tinyint(1) DEFAULT '0',
+  `power_outlet_fl` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
