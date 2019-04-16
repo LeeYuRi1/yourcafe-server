@@ -4,7 +4,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
 var dbConfig = require('./config/config.json');
-var sql = require('mysql');
+var mysql = require('mysql');
+
 var config = {
     host: dbConfig.server,
     password: dbConfig.password,
@@ -12,6 +13,7 @@ var config = {
     database: dbConfig.database,
     connectionLimit: 10
 };
+
 var pool = mysql.createPool(config);
 var s3 = require('s3');
 var client = s3.createClient({
@@ -43,16 +45,47 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // 카페 목록 가져오기 : 위도, 경도, 확대정도, 필터 조건들을 url query에 전송할 것을 예상
 app.get('/cafes', (req, res) => {
+  var latitude = req.params.latitude;
+  var longitude = req.params.longitude;
+  var query = `SELECT ${latitude}, ${longitude} FROM cafes`;   
+
+  pool.query(query, (err, rows, fields) => {
+    if(err) {
+      console.log(err);
+    } else {
+      res.status(200).json({
+        message: "get cafes"
+    });
+
+    }
+  });
 
 });
 
 // 카페 상세 정보 가져오기
 app.get('/cafe/:id', (req, res) => {
+  var id = req.params.id;
+  var query = `SELECT * FROM cafes WHERE id = ${id}`;
 
+  pool.query(query, (err, rows, fields) => {
+    if(err) {
+      console.log(err);
+    } else {
+
+    }
+  });
 });
 
 // 카페 생성하기
 app.post('/cafe', (req, res) => {
+  //var query = `INSERT INTO cafes  `;
+  pool.query(query, (err, rows, fields) => {
+    if(err) {
+      console.log(err);
+    } else {
+
+    }
+  });
 
 });
 
@@ -61,7 +94,7 @@ app.put('/cafes', (req, res) => {
 
 });
 
-// 카페 삭제하기
+// 카페 삭제하기  
 app.delete('/cafes', (req, res) => {
 
 });
