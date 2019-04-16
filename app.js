@@ -1,11 +1,25 @@
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
 var logger = require('morgan');
 var cors = require('cors');
+var swaggerJSDoc = require('swagger-jsdoc');
+var swaggerDefinition = {
+  info: {
+    title: 'Your cafe',
+    version: '1.0.0',
+  }
+}
+var options = {
+  swaggerDefinition: swaggerDefinition,
+  apis: ['.app.js']
+}
+var swaggerSpec = swaggerJSDoc(options);
+var swaggerUi = require('swagger-ui-express');
+
 var dbConfig = require('./config/config.json');
 var mysql = require('mysql');
-
 var config = {
     host: dbConfig.server,
     password: dbConfig.password,
@@ -33,12 +47,15 @@ var client = s3.createClient({
 // var usersRouter = require('./routes/users');
 
 var app = express();
-
+app.use(cors());
 app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // app.use('/', indexRouter);
 // app.use('/users', usersRouter);
@@ -78,8 +95,28 @@ app.get('/cafe/:id', (req, res) => {
 
 // 카페 생성하기
 app.post('/cafe', (req, res) => {
-
-
+  let columns = [];
+  let values = [];
+  for(let prop in req.body) {
+      columns.push(prop);
+      values.push(req.body[prop]);
+  }
+  values.push(new Date());
+  pool.getConnection(function(err, connection) {
+    if (err) throw err; // not connected!
+   
+    let query = `INSERT INTO cafes (${columns.join(',')},create_date) VALUES (${values.map(value => '?').join(',')})`;
+		console.log("TCL: query", query)
+    connection.query(query, [...values], function (error, result, fields) {
+      
+      // When done with the connection, release it.
+      connection.release();
+      // Handle error after the release.
+      if (error) throw error;
+      
+      res.status(200).send();
+    });
+  });
 });
 
 // 카페 수정하기

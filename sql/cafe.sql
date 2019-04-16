@@ -5,7 +5,7 @@ Create Table cafes (
     name VARCHAR(20) NOT NULL,   -- 카페 이름
     latitude VARCHAR(30) NOT NULL,   -- 위도
     longitude VARCHAR(30) NOT NULL,   -- 경도
-    create_date DATETIME NOT NULL,
+    create_date DATETIME,
     update_date DATETIME,
     images VARCHAR(50),   -- 카페 사진
     smoking_fl TINYINT(1) DEFAULT 0,   -- 흡연실
