@@ -104,7 +104,6 @@ app.get('/cafe/:id', (req, res) => {
     if (err) throw err; // not connected!
     var query = `SELECT * FROM cafes where id = ?`;
     connection.query(query, [id], function (error, results, fields) {
-      
       // When done with the connection, release it.
       connection.release();
       // Handle error after the release.
@@ -123,13 +122,12 @@ app.post('/cafe', (req, res) => {
       columns.push(prop);
       values.push(req.body[prop]);
   }
+
   values.push(new Date());
   pool.getConnection(function(err, connection) {
     if (err) throw err; // not connected!
-   
     let query = `INSERT INTO cafes (${columns.join(',')},create_date) VALUES (${values.map(value => '?').join(',')})`;
     connection.query(query, [...values], function (error, result, fields) {
-      
       // When done with the connection, release it.
       connection.release();
       // Handle error after the release.
