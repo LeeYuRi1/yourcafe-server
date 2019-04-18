@@ -60,42 +60,76 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // app.use('/', indexRouter);
 // app.use('/users', usersRouter);
 
+// app.get('/cafes', (req, res) => {
+//   let columns = [];
+//   let values = [];
+//   for(let prop in req.query) {
+//       if(['minLatitude', 'maxLatitude', 'minLongitude', 'maxLongitude'].includes(prop)) {
+//         continue;
+//       } else {
+//         columns.push(prop);
+//         values.push(req.query[prop]);
+//       }
+//   }
+//   var minLatitude = req.query.minLatitude;
+//   var maxLatitude = req.query.maxLatitude;
+//   var minLongitude = req.query.minLongitude;
+//   var maxLongitude = req.query.maxLongitude;
+
+//   var query = `SELECT * FROM cafes where latitude >= ? AND latitude <= ? AND longitude >= ? AND longitude <= ?`;
+//   console.log("TCL: columns", columns)
+//   if(columns.length > 0) {
+//     query += `AND ${columns.join(' = ? AND ')}= ?`;
+//   }
+//   pool.getConnection(function(err, connection) {
+//     if (err) throw err; // not connected!
+//     connection.query(query, [minLatitude, maxLatitude, minLongitude, maxLongitude, ...values], function (error, results, fields) {
+      
+//       // When done with the connection, release it.
+//       connection.release();
+//       // Handle error after the release.
+//       if (error) throw error; 
+
+//       console.log(results);
+//       res.status(200).send(results);
+//     });
+//   });
+// });
+
 // 카페 목록 가져오기 : 위도, 경도, 확대정도, 필터 조건들을 url query에 전송할 것을 예상
 app.get('/cafes', (req, res) => {
-  let columns = [];
-  let values = [];
-  for(let prop in req.query) {
-      if(['minLatitude', 'maxLatitude', 'minLongitude', 'maxLongitude'].includes(prop)) {
-        continue;
-      } else {
-        columns.push(prop);
-        values.push(req.query[prop]);
-      }
-  }
-  var minLatitude = req.query.minLatitude;
-  var maxLatitude = req.query.maxLatitude;
-  var minLongitude = req.query.minLongitude;
-  var maxLongitude = req.query.maxLongitude;
+  var lat = req.query.lat;  //위도
+  var lng = req.query.lng;  //경도
+  var radius = req.query.radius;  //반경
 
-  var query = `SELECT * FROM cafes where latitude >= ? AND latitude <= ? AND longitude >= ? AND longitude <= ?`;
-  console.log("TCL: columns", columns)
-  if(columns.length > 0) {
-    query += `AND ${columns.join(' = ? AND ')}= ?`;
-  }
-  pool.getConnection(function(err, connection) {
-    if (err) throw err; // not connected!
-    connection.query(query, [minLatitude, maxLatitude, minLongitude, maxLongitude, ...values], function (error, results, fields) {
-      
-      // When done with the connection, release it.
-      connection.release();
-      // Handle error after the release.
-      if (error) throw error; 
+  var query = `SELECT
+  id, latitude, longitude, (
+    3959 * acos (
+      cos ( radians( ? ) )  
+      * cos( radians( latitude ) )
+      * cos( radians( longitude ) - radians( ? ) )
+      + sin ( radians( ? ) )
+      * sin( radians( latitude ) )
+    )
+  ) AS distance
+  FROM cafes
+  HAVING distance < ?
+  ORDER BY distance
+  LIMIT 0 , 20;`
+  
+  pool.getConnection(function(err, connection) {  
+    if (err) throw err; 
 
+    connection.query(query, [lat, lng, lat, radius], function (error, results, fields) { 
+      connection.release(); 
+      if (error) throw error;
       console.log(results);
-      res.status(200).send(results);
+      res.status(200).json(results); 
     });
   });
 });
+
+
 
 // 카페 상세 정보 가져오기
 app.get('/cafe/:id', (req, res) => {
