@@ -4,6 +4,22 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
 var cors = require('cors');
+var AWS = require('aws-sdk');
+AWS.config.loadFromPath(__dirname + '/config/awsconfig.json');
+var s3 = new AWS.S3();
+var multer = require('multer');
+var multerS3 = require('multer-s3');
+var upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: 'your-cafe',
+    key: function (req, file, cb) {
+      let extension = path.extname(file.originalname);
+      cb(null, Date.now().toString() + extension)
+    },
+    acl: 'public-read'
+  })
+})
 var swaggerJSDoc = require('swagger-jsdoc');
 var swaggerDefinition = {
   info: {
@@ -29,19 +45,7 @@ var config = {
 };
 
 var pool = mysql.createPool(config);
-var s3 = require('s3');
-var client = s3.createClient({
-  maxAsyncS3: 20,     
-  s3RetryCount: 3,    
-  s3RetryDelay: 1000, 
-  multipartUploadThreshold: 20971520,
-  multipartUploadSize: 15728640,
-  s3Options: {
-    accessKeyId: dbConfig.accessKeyId,
-    secretAccessKey: dbConfig.secretAccessKey,
-    region: dbConfig.region
-  }
-});
+
 
 // var indexRouter = require('./routes/index');
 // var usersRouter = require('./routes/users');
@@ -128,6 +132,13 @@ app.get('/cafes', (req, res) => {
     });
   });
 });
+
+app.post('/container/upload', upload.single('cafeImage'), (req, res) => {
+  let image = req.file;
+  res.status(200).json({
+    location: image.location
+  }); 
+})
 
 
 
