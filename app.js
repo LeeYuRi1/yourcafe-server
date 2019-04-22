@@ -102,12 +102,27 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // 카페 목록 가져오기 : 위도, 경도, 확대정도, 필터 조건들을 url query에 전송할 것을 예상
 app.get('/cafes', (req, res) => {
+  let columns = [];
+  let values = [];
+  for(let prop in req.query) {
+      if(['lat', 'lng', 'radius'].includes(prop)) {
+        continue;
+      } else {
+        columns.push(prop);
+        values.push(req.query[prop]);
+      }
+  }
+
   var lat = req.query.lat;  //위도
   var lng = req.query.lng;  //경도
   var radius = req.query.radius;  //반경
 
-  var query = `SELECT
-  id, latitude, longitude, (
+  var wherequery = ""
+  if(columns.length > 0) {
+    wherequery += `WHERE ${columns.join(' = ? AND ')}= ?`;
+  }
+
+  var query = `SELECT *, (
     3959 * acos (
       cos ( radians( ? ) )  
       * cos( radians( latitude ) )
@@ -117,14 +132,15 @@ app.get('/cafes', (req, res) => {
     )
   ) AS distance
   FROM cafes
+  ${wherequery}
   HAVING distance < ?
   ORDER BY distance
   LIMIT 0 , 20;`
-  
+
   pool.getConnection(function(err, connection) {  
     if (err) throw err; 
 
-    connection.query(query, [lat, lng, lat, radius], function (error, results, fields) { 
+    connection.query(query, [lat, lng, lat, ...values, radius], function (error, results, fields) { 
       connection.release(); 
       if (error) throw error;
       console.log(results);
@@ -133,13 +149,14 @@ app.get('/cafes', (req, res) => {
   });
 });
 
+
+
 app.post('/container/upload', upload.single('cafeImage'), (req, res) => {
   let image = req.file;
   res.status(200).json({
     location: image.location
   }); 
 })
-
 
 
 // 카페 상세 정보 가져오기
