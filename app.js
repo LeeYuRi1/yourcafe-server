@@ -187,6 +187,7 @@ app.post('/cafe', (req, res) => {
   let columns = [];
   let values = [];
   for(let prop in req.body) {
+      if(prop === 'menus') continue;
       columns.push(prop);
       values.push(req.body[prop]);
   }
@@ -196,12 +197,18 @@ app.post('/cafe', (req, res) => {
     if (err) throw err; // not connected!
     let query = `INSERT INTO cafes (${columns.join(',')},create_date) VALUES (${values.map(value => '?').join(',')})`;
     connection.query(query, [...values], function (error, result, fields) {
-      // When done with the connection, release it.
-      connection.release();
-      // Handle error after the release.
-      if (error) throw error;
-      
-      res.status(200).send();
+      values = JSON.parse(req.body.menus).map(menu => {
+        return [result.insertId, menu.menu_name, menu.menu_price];
+      })
+      query = `INSERT INTO menu (cafeid, menu_name, menu_price) VALUES ?`
+      connection.query(query, [values], function (error, result, fields) {
+        // When done with the connection, release it.
+        connection.release();
+        // Handle error after the release.
+        if (error) throw error;
+        
+        res.status(200).send();
+      })
     });
   });
 });
