@@ -64,42 +64,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // app.use('/', indexRouter);
 // app.use('/users', usersRouter);
 
-// app.get('/cafes', (req, res) => {
-//   let columns = [];
-//   let values = [];
-//   for(let prop in req.query) {
-//       if(['minLatitude', 'maxLatitude', 'minLongitude', 'maxLongitude'].includes(prop)) {
-//         continue;
-//       } else {
-//         columns.push(prop);
-//         values.push(req.query[prop]);
-//       }
-//   }
-//   var minLatitude = req.query.minLatitude;
-//   var maxLatitude = req.query.maxLatitude;
-//   var minLongitude = req.query.minLongitude;
-//   var maxLongitude = req.query.maxLongitude;
-
-//   var query = `SELECT * FROM cafes where latitude >= ? AND latitude <= ? AND longitude >= ? AND longitude <= ?`;
-//   console.log("TCL: columns", columns)
-//   if(columns.length > 0) {
-//     query += `AND ${columns.join(' = ? AND ')}= ?`;
-//   }
-//   pool.getConnection(function(err, connection) {
-//     if (err) throw err; // not connected!
-//     connection.query(query, [minLatitude, maxLatitude, minLongitude, maxLongitude, ...values], function (error, results, fields) {
-      
-//       // When done with the connection, release it.
-//       connection.release();
-//       // Handle error after the release.
-//       if (error) throw error; 
-
-//       console.log(results);
-//       res.status(200).send(results);
-//     });
-//   });
-// });
-
 // 카페 목록 가져오기 : 위도, 경도, 확대정도, 필터 조건들을 url query에 전송할 것을 예상
 app.get('/cafes', (req, res) => {
   let columns = [];
@@ -164,20 +128,41 @@ app.get('/cafe/:id', (req, res) => {
   var id = req.params.id;
   pool.getConnection(function(err, connection) {
     if (err) throw err; // not connected!
-    //var query = `SELECT * FROM cafes where id = ?`;
-    var query = `
-    SELECT * FROM cafes
-    INNER JOIN review ON cafes.id = review.cafeid
-    INNER JOIN menu ON cafes.id = menu.cafeid
-    WHERE cafes.id = ?`;
-
+    var query = `SELECT * FROM cafes where id = ?`;
+    
     connection.query(query, [id], function (error, results, fields) {
-      // When done with the connection, release it.
-      connection.release();
-      // Handle error after the release.
-      if (error) throw error; 
+      query = `SELECT * FROM review where cafeid = ?`;
 
-      res.status(200).send(results[0]);
+      connection.query(query, [id], function (error, result_review, fields) {
+        query = `SELECT * FROM menu where cafeid = ?`;
+
+        connection.query(query, [id], function (error, result_menu, fields) {
+          // When done with the connection, release it.
+          connection.release();
+          // Handle error after the release.
+          if (error) throw error; 
+
+          var reviews = [];
+          var menus = [];
+
+          for(var i=0; i < result_review.length; i++){
+            reviews.push(result_review[i].review);
+          }
+          for(var i=0; i < result_menu.length; i++){
+            menus[i] = {
+              "menu_name": result_menu[i].menu_name,
+              "menu_price": result_menu[i].menu_price
+            }
+          }
+          results[0].reviews = reviews;
+          results[0].menus = menus;
+
+          res.status(200).send({
+            "cafes": results[0]
+          });
+
+        });
+      });
     });
   });
 });
