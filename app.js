@@ -164,7 +164,13 @@ app.get('/cafe/:id', (req, res) => {
   var id = req.params.id;
   pool.getConnection(function(err, connection) {
     if (err) throw err; // not connected!
-    var query = `SELECT * FROM cafes where id = ?`;
+    //var query = `SELECT * FROM cafes where id = ?`;
+    var query = `
+    SELECT * FROM cafes
+    INNER JOIN review ON cafes.id = review.cafeid
+    INNER JOIN menu ON cafes.id = menu.cafeid
+    WHERE cafes.id = ?`;
+
     connection.query(query, [id], function (error, results, fields) {
       // When done with the connection, release it.
       connection.release();
@@ -217,7 +223,26 @@ app.put('/cafe/:id', (req, res) => {
       res.status(200).send();
     });
   });
-
-
 });
+
+
+app.post('/cafe/review/:id', (req, res) => {
+  let id = req.params.id;
+    
+  pool.getConnection(function(err, connection) {
+    if(err) throw error;
+    let query = `INSERT INTO review (cafeid, review) VALUES (?, ?)`;
+
+    connection.query(query, [id, req.body.review], function(error, result, fields) {
+      // When done with the connection, release it.
+      connection.release();
+      // Handle error after the release.
+      if (error) throw error;
+      
+      res.status(200).send();
+    });
+  });
+});
+
+
 module.exports = app;
