@@ -157,9 +157,9 @@ app.get('/cafe/:id', (req, res) => {
           results[0].reviews = reviews;
           results[0].menus = menus;
 
-          res.status(200).send({
-            "cafes": results[0]
-          });
+          res.status(200).send(
+            results[0]
+          );
 
         });
       });
@@ -182,18 +182,26 @@ app.post('/cafe', (req, res) => {
     if (err) throw err; // not connected!
     let query = `INSERT INTO cafes (${columns.join(',')},create_date) VALUES (${values.map(value => '?').join(',')})`;
     connection.query(query, [...values], function (error, result, fields) {
-      values = JSON.parse(req.body.menus).map(menu => {
-        return [result.insertId, menu.menu_name, menu.menu_price];
-      })
-      query = `INSERT INTO menu (cafeid, menu_name, menu_price) VALUES ?`
-      connection.query(query, [values], function (error, result, fields) {
-        // When done with the connection, release it.
+      if(req.body.menus) {
+        values = JSON.parse(req.body.menus).map(menu => {
+          return [result.insertId, menu.menu_name, menu.menu_price];
+        })
+        query = `INSERT INTO menu (cafeid, menu_name, menu_price) VALUES ?`
+        connection.query(query, [values], function (error, result, fields) {
+          // When done with the connection, release it.
+          connection.release();
+          // Handle error after the release.
+          if (error) throw error;
+          
+          res.status(200).send();
+        });
+      } else {
         connection.release();
         // Handle error after the release.
         if (error) throw error;
         
         res.status(200).send();
-      })
+      }
     });
   });
 });
