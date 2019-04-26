@@ -108,7 +108,8 @@ app.get('/cafes', (req, res) => {
       connection.release(); 
       if (error) throw error;
       console.log(results);
-      res.status(200).json(results); 
+      
+      res.status(200).json({results});
     });
   });
 });
